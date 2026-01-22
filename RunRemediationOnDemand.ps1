@@ -32,38 +32,54 @@ $script:GraphBaseUrl = "https://graph.microsoft.com/beta"
 $script:AccessToken = $null
 $script:PageSize = 50
 
+#region Module Check
+function Install-RequiredModules {
+    $requiredModules = @('Microsoft.Graph.Authentication')
+
+    foreach ($module in $requiredModules) {
+        if (-not (Get-Module -Name $module -ListAvailable)) {
+            Write-Host "Module '$module' not found. Installing..." -ForegroundColor Yellow
+            try {
+                Install-Module -Name $module -Scope CurrentUser -Force -AllowClobber
+                Write-Host "Module '$module' installed successfully." -ForegroundColor Green
+            }
+            catch {
+                Write-Host "Failed to install '$module': $_" -ForegroundColor Red
+                Write-Host "Please run: Install-Module $module -Scope CurrentUser" -ForegroundColor Yellow
+                exit 1
+            }
+        }
+    }
+}
+
+Install-RequiredModules
+#endregion
+
 #region Authentication
 function Connect-ToGraph {
     param([string]$TenantId, [switch]$UseDeviceCode)
 
     Write-Host "`nConnecting to Microsoft Graph..." -ForegroundColor Cyan
 
-    if (Get-Module -Name Microsoft.Graph.Authentication -ListAvailable) {
-        $connectParams = @{
-            Scopes = @(
-                "DeviceManagementConfiguration.Read.All",
-                "DeviceManagementManagedDevices.Read.All",
-                "DeviceManagementManagedDevices.PrivilegedOperations.All"
-            )
-            NoWelcome = $true
-        }
-        if ($TenantId) { $connectParams.TenantId = $TenantId }
-        if ($UseDeviceCode) { $connectParams.UseDeviceCode = $true }
-
-        try {
-            Connect-MgGraph @connectParams -ErrorAction Stop | Out-Null
-            $context = Get-MgContext
-            Write-Host "Connected as: $($context.Account)" -ForegroundColor Green
-            return $true
-        }
-        catch {
-            Write-Host "Auth failed: $_" -ForegroundColor Red
-            return $false
-        }
+    $connectParams = @{
+        Scopes = @(
+            "DeviceManagementConfiguration.Read.All",
+            "DeviceManagementManagedDevices.Read.All",
+            "DeviceManagementManagedDevices.PrivilegedOperations.All"
+        )
+        NoWelcome = $true
     }
-    else {
-        Write-Host "Microsoft.Graph module not found. Install it with:" -ForegroundColor Yellow
-        Write-Host "  Install-Module Microsoft.Graph.Authentication -Scope CurrentUser" -ForegroundColor White
+    if ($TenantId) { $connectParams.TenantId = $TenantId }
+    if ($UseDeviceCode) { $connectParams.UseDeviceCode = $true }
+
+    try {
+        Connect-MgGraph @connectParams -ErrorAction Stop | Out-Null
+        $context = Get-MgContext
+        Write-Host "Connected as: $($context.Account)" -ForegroundColor Green
+        return $true
+    }
+    catch {
+        Write-Host "Auth failed: $_" -ForegroundColor Red
         return $false
     }
 }
