@@ -1,4 +1,4 @@
-# Run Proactive Remediations On Demand
+# IROD - Intune Remediation On Demand
 
 A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Supports single device mode or multi-device selection via a WPF GUI with pagination and search. Connects to Microsoft Graph using least-privileged permissions and provides real-time progress tracking for batch remediation operations.
 
@@ -6,17 +6,23 @@ A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Sup
 
 - **Single Device Mode** - Run remediation on a specific device by name
 - **Multi-Device Mode** - Select multiple devices via WPF GUI with:
-  - Pagination for large device lists
-  - Search/filter functionality
+  - Pagination for large device lists (50 devices per page)
+  - Search/filter functionality across device names and users
   - Checkbox selection with count display
-  - Real-time progress tracking
+  - Select all/deselect all options
+  - Real-time progress tracking window
+- **Automatic Module Installation** - Checks and installs required PowerShell modules automatically
 - **Least-Privileged Permissions** - Uses only the minimum required Microsoft Graph scopes
 - **Device Sync** - Automatically initiates device sync after triggering remediation
+- **Windows Devices Only** - Filters to show only Windows devices (since remediation scripts only apply to Windows)
+- **Dark Theme GUI** - Modern dark-themed WPF interface for better usability
 
 ## Prerequisites
 
 - PowerShell 5.1 or later
-- Microsoft.Graph.Authentication module
+- Microsoft.Graph.Authentication module (auto-installed if missing)
+
+The tool will automatically check for and install required modules on first run. To manually install:
 
 ```powershell
 Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
@@ -35,7 +41,7 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 ### Interactive Mode (Recommended)
 
 ```powershell
-.\RunRemediationOnDemand.ps1
+.\IROD.ps1
 ```
 
 You'll be prompted to choose between single device or multi-device mode.
@@ -43,13 +49,13 @@ You'll be prompted to choose between single device or multi-device mode.
 ### Single Device Mode
 
 ```powershell
-.\RunRemediationOnDemand.ps1 -DeviceName "DESKTOP-ABC123"
+.\IROD.ps1 -DeviceName "DESKTOP-ABC123"
 ```
 
 ### Multi-Device Mode
 
 ```powershell
-.\RunRemediationOnDemand.ps1 -MultiDevice
+.\IROD.ps1 -MultiDevice
 ```
 
 ### Additional Parameters
@@ -68,23 +74,31 @@ You'll be prompted to choose between single device or multi-device mode.
 5. Confirm and execute
 6. View real-time progress (multi-device mode)
 
-## Screenshots
+## Interface
 
 ### Mode Selection
+When running without parameters, you'll see:
 ```
-========================================
-  SELECT EXECUTION MODE
-========================================
+[ I R O D ]
 
-  [1] Single Device  - Run remediation on one device
-  [2] Multi-Device   - Select multiple devices via GUI
+  [1] Single Device
+      Run remediation on one specific device
+
+  [2] Multi-Device
+      Select multiple devices via GUI
+
+  [Q] Quit
+
+Enter choice (1, 2, or Q):
 ```
 
-### Multi-Device WPF GUI
-- Device grid with pagination
-- Search functionality
-- Checkbox selection
-- Progress tracking window
+### Multi-Device WPF GUI Features
+- Device grid with pagination (50 devices per page)
+- Live search/filter functionality
+- Checkbox selection with counter
+- Select All on Page / Deselect All buttons
+- Exit Tool button for clean exit at any stage
+- Real-time progress tracking window during execution
 
 ## License
 
