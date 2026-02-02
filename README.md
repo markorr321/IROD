@@ -127,7 +127,21 @@ Instead of using parameters every time, you can configure IROD to use your custo
 Configure-IROD
 ```
 
-This will prompt for your ClientId and TenantId and save them as environment variables. After configuration, just run:
+**Example output:**
+```
+[ I R O D ]
+
+This will configure your custom app registration for IROD.
+These settings will be saved as user-level environment variables.
+
+Enter your App Registration Client ID: abc123-def4-5678-90ab-cdef12345678
+Enter your Tenant ID: xyz789-abc1-2345-67de-f89012345678
+
+Configuration saved successfully!
+You can now run Invoke-IntuneRemediation without parameters.
+```
+
+After configuration, just run:
 
 ```powershell
 Invoke-IntuneRemediation
