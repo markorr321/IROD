@@ -36,34 +36,127 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 | `DeviceManagementManagedDevices.Read.All` | List and search devices |
 | `DeviceManagementManagedDevices.PrivilegedOperations.All` | Trigger remediation and sync |
 
-## Usage
+## Installation
 
-### Interactive Mode (Recommended)
+### Option 1: PowerShell Gallery (Recommended - Coming Soon)
+
+Once published to PowerShell Gallery:
+```powershell
+Install-Module -Name IROD -Scope CurrentUser
+Import-Module IROD
+```
+
+### Option 2: Manual Installation
+
+1. Clone or download this repository
+2. Import the module:
+```powershell
+Import-Module .\IROD\IROD.psd1
+```
+
+### Option 3: Use as Standalone Script (Backward Compatibility)
 
 ```powershell
 .\IROD.ps1
 ```
 
-You'll be prompted to choose between single device or multi-device mode.
+## Usage
 
-### Single Device Mode
+### Using the Module (Recommended)
 
+**Interactive Mode:**
+```powershell
+Import-Module .\IROD\IROD.psd1
+Invoke-IntuneRemediation
+```
+
+**Single Device Mode:**
+```powershell
+Invoke-IntuneRemediation -DeviceName "DESKTOP-ABC123"
+```
+
+**Multi-Device Mode:**
+```powershell
+Invoke-IntuneRemediation -MultiDevice
+```
+
+**With Tenant ID:**
+```powershell
+Invoke-IntuneRemediation -TenantId "your-tenant-id"
+```
+
+**Get Help:**
+```powershell
+Invoke-IntuneRemediation -Help
+```
+
+### Using as Standalone Script (Backward Compatibility)
+
+**Interactive Mode:**
+```powershell
+.\IROD.ps1
+```
+
+**Single Device Mode:**
 ```powershell
 .\IROD.ps1 -DeviceName "DESKTOP-ABC123"
 ```
 
-### Multi-Device Mode
-
+**Multi-Device Mode:**
 ```powershell
 .\IROD.ps1 -MultiDevice
 ```
 
-### Additional Parameters
+### Parameters
 
 | Parameter | Description |
 |-----------|-------------|
-| `-TenantId` | Specify a tenant ID for multi-tenant scenarios |
-| `-UseDeviceCode` | Use device code authentication flow |
+| `-DeviceName` | Name of a specific device to run remediation on |
+| `-MultiDevice` | Switch to enable multi-device selection GUI |
+| `-ClientId` | Client ID of custom app registration (or set via `Configure-IROD`) |
+| `-TenantId` | Tenant ID for custom app registration (or set via `Configure-IROD`) |
+| `-Help` | Display detailed help information and exit |
+
+## Configuration
+
+### Custom App Registration
+
+Instead of using parameters every time, you can configure IROD to use your custom app registration:
+
+```powershell
+Configure-IROD
+```
+
+This will prompt for your ClientId and TenantId and save them as environment variables. After configuration, just run:
+
+```powershell
+Invoke-IntuneRemediation
+```
+
+**To clear the configuration:**
+```powershell
+Clear-IRODConfig
+```
+
+### App Registration Requirements
+
+Your custom app registration must have:
+- **Platform**: Mobile and desktop applications
+- **Redirect URI**: http://localhost
+- **Allow public client flows**: Yes
+- **API Permissions** (delegated):
+  - `DeviceManagementConfiguration.Read.All`
+  - `DeviceManagementManagedDevices.Read.All`
+  - `DeviceManagementManagedDevices.PrivilegedOperations.All`
+
+### Automatic Update Checking
+
+IROD automatically checks for updates once every 24 hours when you run it. If an update is available, you'll be prompted to update.
+
+**To disable update checks:**
+```powershell
+$env:IROD_DISABLE_UPDATE_CHECK = 'true'
+```
 
 ## How It Works
 
