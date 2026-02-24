@@ -4,7 +4,7 @@ function Connect-ToGraph {
         [string]$TenantId
     )
 
-    Write-Host "`nConnecting to Microsoft Graph..." -ForegroundColor Green
+    Write-Host "Connecting to Microsoft Graph..." -ForegroundColor Green
 
     $connectParams = @{
         Scopes = @(

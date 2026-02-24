@@ -6,82 +6,86 @@ function Show-DeviceSelectionGui {
     param([array]$AllDevices)
 
     $script:SelectedDevices = @()
+    $script:AllDevicesSelected = $false
     $script:CurrentPage = 1
     $script:AllDeviceObjects = @()
     $script:FilteredDeviceObjects = @()
+
+    # Get theme colors
+    $t = Get-IRODThemeColors
 
     $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Select Devices for Remediation" Height="600" Width="900"
         WindowStartupLocation="CenterScreen" Topmost="True"
-        Background="#1E1E1E">
+        Background="$($t.WindowBackground)">
     <Window.Resources>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#2D2D30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="Background" Value="$($t.ButtonBackground)"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
+            <Setter Property="BorderBrush" Value="$($t.Border)"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,6"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3E3E42"/>
+                    <Setter Property="Background" Value="$($t.ButtonHover)"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#2D2D30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="Background" Value="$($t.ControlBackground)"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
+            <Setter Property="BorderBrush" Value="$($t.Border)"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="CaretBrush" Value="$($t.TextPrimary)"/>
         </Style>
         <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
         </Style>
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="#252526"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="Background" Value="$($t.ListBackground)"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
+            <Setter Property="BorderBrush" Value="$($t.Border)"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="#2D2D30"/>
-            <Setter Property="AlternatingRowBackground" Value="#252526"/>
+            <Setter Property="RowBackground" Value="$($t.ControlBackground)"/>
+            <Setter Property="AlternatingRowBackground" Value="$($t.ControlBackgroundAlt)"/>
             <Setter Property="GridLinesVisibility" Value="None"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
         </Style>
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#2D2D30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="Background" Value="$($t.HeaderBackground)"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
+            <Setter Property="BorderBrush" Value="$($t.Border)"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="Padding" Value="8,6"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
         <Style TargetType="DataGridCell">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#094771"/>
-                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background" Value="$($t.SelectedBackground)"/>
+                    <Setter Property="Foreground" Value="$($t.SelectedText)"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <Style TargetType="DataGridRow">
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2D2D30"/>
+                    <Setter Property="Background" Value="$($t.ListItemHover)"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#094771"/>
+                    <Setter Property="Background" Value="$($t.SelectedBackground)"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="$($t.TextPrimary)"/>
         </Style>
     </Window.Resources>
     <Grid Margin="15">
@@ -100,7 +104,7 @@ function Show-DeviceSelectionGui {
         <Grid Grid.Row="1" Margin="0,0,0,10">
             <TextBox Name="SearchBox" Width="300" HorizontalAlignment="Left" Padding="5" FontSize="14"/>
             <TextBlock Name="SearchPlaceholder" Text="Search devices..."
-                       Margin="5,5,0,0" Foreground="#808080" IsHitTestVisible="False"
+                       Margin="5,5,0,0" Foreground="$($t.TextPlaceholder)" IsHitTestVisible="False"
                        HorizontalAlignment="Left" Width="300"/>
         </Grid>
 
@@ -179,7 +183,23 @@ function Show-DeviceSelectionGui {
 
             <!-- Left side buttons -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button Name="SelectAllPageBtn" Content="✓ Select All on Page" Width="150" Margin="0,0,8,0" FontSize="13" Padding="10,8"/>
+                <Button Name="SelectAllDevicesBtn" Content="✓ Select ALL Devices" Width="160" Margin="0,0,8,0" FontSize="13" Padding="10,8">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#2E8B57"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderBrush" Value="#3E9B67"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#3E9B67"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Name="SelectAllPageBtn" Content="✓ Select Page" Width="120" Margin="0,0,8,0" FontSize="13" Padding="10,8"/>
                 <Button Name="DeselectAllBtn" Content="✗ Deselect All" Width="120" Margin="0,0,8,0" FontSize="13" Padding="10,8"/>
             </StackPanel>
 
@@ -243,6 +263,7 @@ function Show-DeviceSelectionGui {
     $prevPageBtn = $window.FindName("PrevPageBtn")
     $nextPageBtn = $window.FindName("NextPageBtn")
     $lastPageBtn = $window.FindName("LastPageBtn")
+    $selectAllDevicesBtn = $window.FindName("SelectAllDevicesBtn")
     $selectAllPageBtn = $window.FindName("SelectAllPageBtn")
     $deselectAllBtn = $window.FindName("DeselectAllBtn")
     $exitBtn = $window.FindName("ExitBtn")
@@ -357,6 +378,16 @@ function Show-DeviceSelectionGui {
         Update-DeviceGrid
     })
 
+    $selectAllDevicesBtn.Add_Click({
+        # Select ALL filtered devices across all pages
+        $script:AllDevicesSelected = $true
+        foreach ($item in $script:FilteredDeviceObjects) {
+            $item.IsSelected = $true
+        }
+        $deviceGrid.Items.Refresh()
+        Update-SelectionCount
+    })
+
     $selectAllPageBtn.Add_Click({
         foreach ($item in $deviceGrid.ItemsSource) {
             $item.IsSelected = $true
@@ -366,6 +397,7 @@ function Show-DeviceSelectionGui {
     })
 
     $deselectAllBtn.Add_Click({
+        $script:AllDevicesSelected = $false
         foreach ($item in $script:AllDeviceObjects) {
             $item.IsSelected = $false
         }

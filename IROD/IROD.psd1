@@ -12,10 +12,10 @@
 RootModule = 'IROD.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.2'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = @('Desktop', 'Core')
 
 # ID used to uniquely identify this module
 GUID = '62e1bc39-4701-483b-bf8d-1de40d950000'
@@ -24,13 +24,13 @@ GUID = '62e1bc39-4701-483b-bf8d-1de40d950000'
 Author = 'Mark Orr'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Mark Orr'
 
 # Copyright statement for this module
-Copyright = '(c) Mark Orr. All rights reserved.'
+Copyright = '(c) 2026 Mark Orr. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell tool to trigger Intune Proactive Remediation scripts on demand with single device and multi-device modes via WPF GUI.'
+Description = 'IROD (Intune Remediation On Demand) - Trigger Intune Proactive Remediation scripts on-demand for single or multiple devices. Features include WPF GUI for device/script selection, script preview, favorites, parallel execution for large batches, CSV/TXT import, history logging, and export capabilities.'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
@@ -69,7 +69,7 @@ RequiredModules = @('Microsoft.Graph.Authentication')
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Invoke-IntuneRemediation', 'Configure-IROD', 'Clear-IRODConfig')
+FunctionsToExport = @('Invoke-IntuneRemediation', 'Configure-IROD', 'Clear-IRODConfig', 'Get-IntuneRemediationResults')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -95,8 +95,9 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Intune', 'Remediation', 'MicrosoftGraph', 'EndpointManagement', 
-               'Windows'
+        Tags = @('Intune', 'Remediation', 'MicrosoftGraph', 'EndpointManagement', 
+                 'Windows', 'MEM', 'DeviceManagement', 'Proactive', 'Scripts',
+                 'WPF', 'GUI', 'OnDemand', 'IROD', 'Microsoft365', 'MSGraph')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/markorr321/IROD/blob/main/LICENSE'
@@ -108,7 +109,42 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = @'
+## v1.0.2
+
+### New Features
+- Dark/Light theme toggle (press T from main menu)
+- Theme preference saved to %APPDATA%\IROD\settings.json
+
+### Improvements
+- File dialogs now use Windows Explorer GUI for import/export operations
+- Import from File now has proper submenu with browse and template export options
+- Template export moved before Graph connection (no auth needed)
+- Import file validation before connecting to Graph
+- Consistent menu structure throughout
+
+## v1.0.0 - Initial Release
+
+### Features
+- Single device and multi-device remediation modes
+- WPF GUI for script and device selection
+- Script preview (view detection/remediation code)
+- Favorites system for frequently used scripts
+- Script description tooltips on hover
+- Publisher and Version columns in script selector
+- Parallel execution for batches over 50 devices (10 concurrent)
+- Import devices from CSV/TXT files with template export
+- History logging with 30-day retention
+- Export remediation results to CSV
+- Comprehensive help system with 9 topics
+- Select ALL Devices option with safety confirmation
+- Dark-themed modern UI
+
+### Requirements
+- PowerShell 5.1 or later
+- Microsoft.Graph.Authentication module
+- Graph permissions: DeviceManagementManagedDevices.ReadWrite.All, DeviceManagementConfiguration.Read.All
+'@
 
         # Prerelease string of this module
         # Prerelease = ''

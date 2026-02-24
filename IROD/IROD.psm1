@@ -27,6 +27,12 @@ $privateFunctions = @(
     'Show-ProgressGui'
     'Test-IRODUpdate'
     'Show-UpdateNotification'
+    'Get-IRODFavorites'
+    'Get-IRODHistory'
+    'Import-DevicesFromFile'
+    'Show-IRODHelp'
+    'Show-SaveFileDialog'
+    'Get-IRODTheme'
 )
 
 foreach ($function in $privateFunctions) {
@@ -41,6 +47,7 @@ $publicFunctions = @(
     'Invoke-IntuneRemediation'
     'Configure-IROD'
     'Clear-IRODConfig'
+    'Get-IntuneRemediationResults'
 )
 
 foreach ($function in $publicFunctions) {

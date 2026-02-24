@@ -4,8 +4,7 @@ function Test-IRODUpdate {
         Checks if a newer version of IROD is available on PowerShell Gallery.
 
     .DESCRIPTION
-        Performs a non-intrusive check for updates once per 24 hours.
-        Uses cached results to avoid excessive API calls.
+        Performs a quick check for updates on each run.
         Silently handles all errors to not interrupt user experience.
     #>
     [CmdletBinding()]
@@ -17,10 +16,16 @@ function Test-IRODUpdate {
             return
         }
 
-        # Get current module version
-        $currentModule = Get-Module -Name IROD -ListAvailable |
+        # Get current module version (check loaded module first, then installed)
+        $currentModule = Get-Module -Name IROD |
             Sort-Object Version -Descending |
             Select-Object -First 1
+        
+        if (-not $currentModule) {
+            $currentModule = Get-Module -Name IROD -ListAvailable |
+                Sort-Object Version -Descending |
+                Select-Object -First 1
+        }
 
         if (-not $currentModule) {
             return
@@ -28,84 +33,41 @@ function Test-IRODUpdate {
 
         $currentVersion = $currentModule.Version
 
-        # Setup cache file path (cross-platform)
-        $tempPath = [System.IO.Path]::GetTempPath()
-        $cacheFile = Join-Path $tempPath "IROD_UpdateCheck.json"
+        # Fast version check using URL redirect
+        try {
+            $url = "https://www.powershellgallery.com/packages/IROD"
+            $latestVersion = $null
 
-        # Check if we have valid cached data
-        $shouldCheck = $true
-        if (Test-Path $cacheFile) {
             try {
-                $cache = Get-Content $cacheFile -Raw -ErrorAction Stop | ConvertFrom-Json
-
-                if ($cache.LastCheckTime -and $cache.LatestVersion -and $cache.CurrentVersion) {
-                    $lastCheck = [DateTime]::Parse($cache.LastCheckTime)
-                    $hoursSinceCheck = ((Get-Date) - $lastCheck).TotalHours
-
-                    if ($hoursSinceCheck -lt 24) {
-                        $shouldCheck = $false
-                        $latestVersion = [version]$cache.LatestVersion
-
-                        if ($currentVersion -lt $latestVersion) {
-                            Show-UpdateNotification -CurrentVersion $currentVersion -LatestVersion $latestVersion
-                        }
-                    }
-                }
+                $null = Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 5 -ErrorAction Stop
             } catch {
-                Remove-Item $cacheFile -ErrorAction SilentlyContinue
-                $shouldCheck = $true
-            }
-        }
-
-        if ($shouldCheck) {
-            try {
-                $url = "https://www.powershellgallery.com/packages/IROD"
-                $latestVersion = $null
-
-                try {
-                    $null = Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 5 -ErrorAction Stop
-                } catch {
-                    if ($_.Exception.Response -and $_.Exception.Response.Headers) {
-                        try {
-                            $location = $_.Exception.Response.Headers.GetValues('Location') | Select-Object -First 1
-                            if ($location) {
-                                $versionString = Split-Path -Path $location -Leaf
-                                $latestVersion = [version]$versionString
-                            } else {
-                                return
-                            }
-                        } catch {
+                if ($_.Exception.Response -and $_.Exception.Response.Headers) {
+                    try {
+                        $location = $_.Exception.Response.Headers.GetValues('Location') | Select-Object -First 1
+                        if ($location) {
+                            $versionString = Split-Path -Path $location -Leaf
+                            $latestVersion = [version]$versionString
+                        } else {
                             return
                         }
-                    } else {
+                    } catch {
                         return
                     }
-                }
-
-                if (-not $latestVersion) {
+                } else {
                     return
                 }
+            }
 
-                # Update cache
-                $cacheData = @{
-                    LastCheckTime = (Get-Date).ToString('o')
-                    LatestVersion = $latestVersion.ToString()
-                    CurrentVersion = $currentVersion.ToString()
-                }
-
-                try {
-                    $cacheData | ConvertTo-Json | Set-Content $cacheFile -ErrorAction Stop
-                } catch {
-                    # Can't write cache - continue anyway
-                }
-
-                if ($currentVersion -lt $latestVersion) {
-                    Show-UpdateNotification -CurrentVersion $currentVersion -LatestVersion $latestVersion
-                }
-
-            } catch {
+            if (-not $latestVersion) {
                 return
             }
+
+            if ($currentVersion -lt $latestVersion) {
+                Show-UpdateNotification -CurrentVersion $currentVersion -LatestVersion $latestVersion
+            }
+
+        } catch {
+            return
         }
 
     } catch {

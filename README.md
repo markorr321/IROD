@@ -38,9 +38,8 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 
 ## Installation
 
-### Option 1: PowerShell Gallery (Recommended - Coming Soon)
+### Option 1: PowerShell Gallery (Recommended)
 
-Once published to PowerShell Gallery:
 ```powershell
 Install-Module -Name IROD -Scope CurrentUser
 Import-Module IROD

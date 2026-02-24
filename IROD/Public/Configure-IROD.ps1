@@ -1,15 +1,23 @@
 function Configure-IROD {
     <#
     .SYNOPSIS
-        Configure IROD with custom app registration credentials.
+        Configure IROD with custom app registration credentials and theme.
 
     .DESCRIPTION
-        Interactively prompts for ClientId and TenantId and saves them as user-level
-        environment variables. Once configured, Invoke-IntuneRemediation will automatically
-        use these credentials without requiring parameters.
+        Configures ClientId and TenantId (saved as user-level environment variables)
+        and UI theme preference (saved to settings file). Once configured,
+        Invoke-IntuneRemediation will automatically use these credentials.
+
+    .PARAMETER Theme
+        Set the UI theme to 'Dark' or 'Light'. If not specified, prompts interactively.
 
     .EXAMPLE
         Configure-IROD
+        Interactively configure all settings.
+
+    .EXAMPLE
+        Configure-IROD -Theme Dark
+        Set theme to Dark mode only.
 
     .NOTES
         Required App Registration Settings:
@@ -22,7 +30,16 @@ function Configure-IROD {
           - DeviceManagementManagedDevices.PrivilegedOperations.All
     #>
     [CmdletBinding()]
-    param()
+    param(
+        [ValidateSet('Dark', 'Light')]
+        [string]$Theme
+    )
+
+    # If only Theme parameter is provided, just set the theme and exit
+    if ($PSBoundParameters.ContainsKey('Theme')) {
+        Set-IRODTheme -Theme $Theme
+        return
+    }
 
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan
