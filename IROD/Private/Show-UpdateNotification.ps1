@@ -27,57 +27,74 @@ function Show-UpdateNotification {
         Write-Host "Updating IROD..." -ForegroundColor Cyan
 
         try {
-            # Detect how the module was installed and use matching update command
-            $installedViaPSResource = $null
-            $installedViaPowerShellGet = $null
+            $updateSuccess = $false
             
-            # Check PSResourceGet first
-            if (Get-Command Get-InstalledPSResource -ErrorAction SilentlyContinue) {
-                $installedViaPSResource = Get-InstalledPSResource -Name IROD -ErrorAction SilentlyContinue
+            # Detect installation path to determine scope
+            $installPath = $null
+            $hasPSResourceGet = Get-Command Get-InstalledPSResource -ErrorAction SilentlyContinue
+            $hasPowerShellGet = Get-Command Get-InstalledModule -ErrorAction SilentlyContinue
+            
+            if ($hasPSResourceGet) {
+                $psResource = Get-InstalledPSResource -Name IROD -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($psResource) { $installPath = $psResource.InstalledLocation }
+            }
+            if (-not $installPath -and $hasPowerShellGet) {
+                $psModule = Get-InstalledModule -Name IROD -ErrorAction SilentlyContinue
+                if ($psModule) { $installPath = $psModule.InstalledLocation }
             }
             
-            # Check PowerShellGet
-            if (Get-Command Get-InstalledModule -ErrorAction SilentlyContinue) {
-                $installedViaPowerShellGet = Get-InstalledModule -Name IROD -ErrorAction SilentlyContinue
+            # Determine scope from install path (AllUsers = Program Files or /usr/local)
+            $scope = if ($installPath -match 'Program Files|/usr/local') { 'AllUsers' } else { 'CurrentUser' }
+            
+            # Try Update-PSResource first (modern PowerShellGet v3+)
+            if (-not $updateSuccess -and (Get-Command Update-PSResource -ErrorAction SilentlyContinue)) {
+                Write-Host "  Trying Update-PSResource..." -ForegroundColor Gray
+                $ErrorActionPreference = 'Stop'
+                Update-PSResource -Name IROD -Scope $scope -TrustRepository -Confirm:$false -ErrorAction Stop
+                $updateSuccess = $true
             }
             
-            if ($installedViaPSResource) {
-                # Installed via PSResourceGet - detect scope from installation path
-                $installPath = $installedViaPSResource.InstalledLocation
-                # AllUsers paths: Windows="Program Files", macOS/Linux="/usr/local"
-                $scope = if ($installPath -match 'Program Files|/usr/local') { 'AllUsers' } else { 'CurrentUser' }
-                Update-PSResource -Name IROD -Scope $scope -Confirm:$false
+            # Fallback to Update-Module (PowerShellGet v2)
+            if (-not $updateSuccess -and (Get-Command Update-Module -ErrorAction SilentlyContinue)) {
+                Write-Host "  Trying Update-Module..." -ForegroundColor Gray
+                Update-Module -Name IROD -Force -ErrorAction Stop
+                $updateSuccess = $true
             }
-            elseif ($installedViaPowerShellGet) {
-                # Installed via PowerShellGet, use Update-Module
-                Update-Module -Name IROD -Force
+            
+            # Last resort: fresh install
+            if (-not $updateSuccess) {
+                if (Get-Command Install-PSResource -ErrorAction SilentlyContinue) {
+                    Write-Host "  Trying fresh Install-PSResource..." -ForegroundColor Gray
+                    Install-PSResource -Name IROD -Scope $scope -TrustRepository -Reinstall -Confirm:$false -ErrorAction Stop
+                    $updateSuccess = $true
+                }
+                elseif (Get-Command Install-Module -ErrorAction SilentlyContinue) {
+                    Write-Host "  Trying fresh Install-Module..." -ForegroundColor Gray
+                    Install-Module -Name IROD -Force -AllowClobber -Scope $scope -ErrorAction Stop
+                    $updateSuccess = $true
+                }
             }
-            elseif (Get-Command Update-Module -ErrorAction SilentlyContinue) {
-                # Fallback to Update-Module if we can't detect installation method
-                Update-Module -Name IROD -Force
+            
+            if ($updateSuccess) {
+                Write-Host ""
+                Write-Host "Update complete! Please restart PowerShell and run Invoke-IntuneRemediation again." -ForegroundColor Green
+                Write-Host ""
+                Write-Host "Press Enter to Exit"
+                $null = [Console]::ReadLine()
+                exit
             }
             else {
-                Write-Host "Update commands not found. Please run manually:" -ForegroundColor Yellow
-                Write-Host "  Install-Module -Name IROD -Force" -ForegroundColor Yellow
-                Write-Host ""
-                Write-Host "Press Enter to continue"
-                $null = [Console]::ReadLine()
-                return
+                throw "No update method available"
             }
-
-            Write-Host ""
-            Write-Host "Update complete! Please restart PowerShell and run Invoke-IntuneRemediation again." -ForegroundColor Green
-            Write-Host ""
-            Write-Host "Press Enter to Exit"
-            $null = [Console]::ReadLine()
-            exit
         }
         catch {
             Write-Host ""
             Write-Host "Update failed: $_" -ForegroundColor Red
-            Write-Host "Please update manually with:" -ForegroundColor Yellow
-            Write-Host "  Update-Module -Name IROD      (if installed via Install-Module)" -ForegroundColor Yellow
-            Write-Host "  Update-PSResource -Name IROD  (if installed via Install-PSResource)" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "Please close all PowerShell sessions and update manually:" -ForegroundColor Yellow
+            Write-Host "  Install-PSResource -Name IROD -Reinstall -TrustRepository" -ForegroundColor Yellow
+            Write-Host "  -- or --" -ForegroundColor Gray
+            Write-Host "  Install-Module -Name IROD -Force -AllowClobber" -ForegroundColor Yellow
             Write-Host ""
             Write-Host "Press Enter to continue anyway"
             $null = [Console]::ReadLine()
