@@ -110,6 +110,13 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+## v1.0.3
+
+### Fixes
+- Fixed update logic: added -TrustRepository to prevent untrusted repository prompts
+- Fixed error handling in update process (now properly catches failures)
+- Added fallback update methods for different installation scenarios
+
 ## v1.0.2
 
 ### New Features
