@@ -118,7 +118,7 @@ function Invoke-IntuneRemediation {
     Clear-Host
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
-    Write-Host "  v1.0.3" -ForegroundColor DarkGray
+    Write-Host "  v1.0.4" -ForegroundColor DarkGray
     Write-Host "  with PowerShell" -ForegroundColor DarkCyan
     Write-Host ""
 

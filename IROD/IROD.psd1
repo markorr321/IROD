@@ -12,7 +12,7 @@
 RootModule = 'IROD.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.3'
+ModuleVersion = '1.0.4'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop', 'Core')
@@ -110,6 +110,11 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+## v1.0.4
+
+### Fixes
+- Fixed version display in header
+
 ## v1.0.3
 
 ### Fixes
