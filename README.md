@@ -2,6 +2,10 @@
 
 A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Supports single device mode or multi-device selection via a WPF GUI with pagination and search. Connects to Microsoft Graph using least-privileged permissions and provides real-time progress tracking for batch remediation operations.
 
+## See It in Action
+
+![IROD in action](IROD.gif)
+
 ## Features
 
 - **Single Device Mode** - Run remediation on a specific device by name
