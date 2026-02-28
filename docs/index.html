@@ -282,8 +282,8 @@
 
         .permission-item {
             display: flex;
-            align-items: flex-start;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 0.3rem;
             padding: 0.9rem 0;
             border-bottom: 1px solid var(--border);
         }
@@ -294,7 +294,6 @@
             font-family: 'Cascadia Code', 'Fira Code', monospace;
             font-size: 0.82rem;
             color: #9cdcfe;
-            min-width: 340px;
         }
 
         .permission-name::before {
@@ -306,6 +305,7 @@
         .permission-desc {
             font-size: 0.88rem;
             color: var(--text-secondary);
+            padding-left: 1.1rem;
         }
 
         /* ─── Footer ─── */
