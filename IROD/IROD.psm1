@@ -6,6 +6,7 @@ $script:GraphBaseUrl = "https://graph.microsoft.com/beta"
 $script:AccessToken = $null
 $script:PageSize = 50
 $script:exitRequested = $false
+$script:Version = (Import-PowerShellDataFile "$PSScriptRoot\IROD.psd1").ModuleVersion
 
 # Load WPF assemblies (used by GUI functions)
 Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
