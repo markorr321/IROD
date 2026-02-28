@@ -208,6 +208,7 @@ else {
             Write-Host ""
             Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
             Show-IRODHistory -Limit 20
             Write-Host ""
             Write-Host "  [E] Export history to CSV" -ForegroundColor Green
@@ -246,6 +247,7 @@ else {
         Write-Host ""
         Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
         Write-Host ""
     }    elseif ($choice -eq '3') {
         $executionMode = 'ImportFromFile'
@@ -253,6 +255,7 @@ else {
         Write-Host ""
         Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
         Write-Host ""
         Write-Host "Import Devices from File" -ForegroundColor Cyan
         Write-Host ""
@@ -334,6 +337,7 @@ PC-EXAMPLE3
         Write-Host ""
         Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
         Write-Host ""
         $DeviceName = Read-Host "Enter device name"
         if ([string]::IsNullOrWhiteSpace($DeviceName)) {
@@ -349,6 +353,7 @@ PC-EXAMPLE3
         Write-Host ""
         Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
         Write-Host ""
     }
 }
@@ -589,6 +594,7 @@ elseif ($executionMode -eq 'MultiDevice') {
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
     Write-Host ""
     Write-Host "Devices Selected" -ForegroundColor Green
     Write-Host "Selected $($selectedDevices.Count) device$(if($selectedDevices.Count -ne 1){'s'}) for remediation" -ForegroundColor White
@@ -641,6 +647,7 @@ elseif ($executionMode -eq 'MultiDevice') {
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
     Write-Host ""
     Write-Host "Remediation Completed" -ForegroundColor Green
     Write-Host "All devices have been processed." -ForegroundColor White
@@ -700,6 +707,7 @@ elseif ($executionMode -eq 'ImportFromFile') {
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
     Write-Host ""
     Write-Host "Remediation Completed" -ForegroundColor Green
     Write-Host "All devices have been processed." -ForegroundColor White
@@ -722,6 +730,7 @@ else {
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
     Write-Host ""
     Write-Host "Device Found" -ForegroundColor Green
     Write-Host "Selected device for remediation:" -ForegroundColor White
@@ -763,6 +772,7 @@ else {
     Write-Host ""
     Write-Host "[ I R O D ]" -ForegroundColor Cyan -NoNewline
     Write-Host "  v$script:Version" -ForegroundColor DarkGray
+    Write-Host "  with PowerShell" -ForegroundColor DarkCyan
     Write-Host ""
     Write-Host "Remediation Completed" -ForegroundColor Green
     Write-Host "Device has been processed." -ForegroundColor White
