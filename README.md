@@ -1,10 +1,10 @@
 # IROD - Intune Remediation On Demand
 
-A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Supports single device mode or multi-device selection via a WPF GUI with pagination and search. Connects to Microsoft Graph using least-privileged permissions and provides real-time progress tracking for batch remediation operations.
+A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Supports single device mode, multi-device GUI selection, and bulk file import. Connects to Microsoft Graph using least-privileged permissions and provides real-time progress tracking for batch remediation operations.
 
 ## See It in Action
 
-![IROD in action](IROD.gif)
+![IROD in action](IROD-2.gif)
 
 ## Features
 
@@ -15,11 +15,18 @@ A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Sup
   - Checkbox selection with count display
   - Select all/deselect all options
   - Real-time progress tracking window
+  - Parallel execution for large batches (50+ devices)
+- **Import from File** - Load device names from CSV or TXT files for bulk operations
+- **Export Results** - Export remediation results (detection state, script output, errors) to CSV
+- **View History** - Track past remediations with 30-day retention and CSV export
+- **Script Preview** - View detection and remediation code before selecting a script
+- **Favorite Scripts** - Star frequently used scripts for quick access
+- **Theme Support** - Choose Dark or Light UI theme (prompted on first run)
 - **Automatic Module Installation** - Checks and installs required PowerShell modules automatically
 - **Least-Privileged Permissions** - Uses only the minimum required Microsoft Graph scopes
 - **Device Sync** - Automatically initiates device sync after triggering remediation
 - **Windows Devices Only** - Filters to show only Windows devices (since remediation scripts only apply to Windows)
-- **Dark Theme GUI** - Modern dark-themed WPF interface for better usability
+- **Interactive Help** - Built-in documentation accessible from the main menu
 
 ## Prerequisites
 
@@ -83,6 +90,11 @@ Invoke-IntuneRemediation -DeviceName "DESKTOP-ABC123"
 Invoke-IntuneRemediation -MultiDevice
 ```
 
+**Export Results to CSV:**
+```powershell
+Invoke-IntuneRemediation -ExportResults
+```
+
 **With Tenant ID:**
 ```powershell
 Invoke-IntuneRemediation -TenantId "your-tenant-id"
@@ -116,9 +128,24 @@ Invoke-IntuneRemediation -Help
 |-----------|-------------|
 | `-DeviceName` | Name of a specific device to run remediation on |
 | `-MultiDevice` | Switch to enable multi-device selection GUI |
+| `-ExportResults` | Switch to export remediation results to CSV |
 | `-ClientId` | Client ID of custom app registration (or set via `Configure-IROD`) |
 | `-TenantId` | Tenant ID for custom app registration (or set via `Configure-IROD`) |
 | `-Help` | Display detailed help information and exit |
+
+### Exporting Remediation Results (Standalone Cmdlet)
+
+`Get-IntuneRemediationResults` is available as a standalone cmdlet for scripting scenarios where you want to pull results without the interactive IROD workflow:
+
+```powershell
+# Export results for a specific remediation script
+Get-IntuneRemediationResults -RemediationName "Fix Disk Space" -CsvPath "C:\Reports\remediation.csv"
+
+# List available scripts and prompt for selection
+Get-IntuneRemediationResults -CsvPath ".\results.csv"
+```
+
+The exported CSV includes: `DeviceName`, `UserPrincipalName`, `DetectionState`, `LastStateUpdateDateTime`, `PreRemediationDetectionScriptOutput`, `RemediationState`, `PostRemediationDetectionScriptOutput`, `RemediationScriptErrorDetails`, `DetectionScriptErrorDetails`.
 
 ## Configuration
 
@@ -166,6 +193,14 @@ Your custom app registration must have:
   - `DeviceManagementManagedDevices.Read.All`
   - `DeviceManagementManagedDevices.PrivilegedOperations.All`
 
+### Theme
+
+On first run, IROD prompts you to choose a Dark or Light theme. To change your theme later:
+
+```powershell
+Set-IRODTheme -Theme 'Dark'   # or 'Light'
+```
+
 ### Automatic Update Checking
 
 IROD automatically checks for updates once every 24 hours when you run it. If an update is available, you'll be prompted to update.
@@ -177,9 +212,9 @@ $env:IROD_DISABLE_UPDATE_CHECK = 'true'
 
 ## How It Works
 
-1. Select execution mode (single or multi-device)
+1. Select execution mode from the interactive menu (or pass a parameter directly)
 2. Authenticate to Microsoft Graph
-3. Select a remediation script from your Intune tenant
+3. Select a remediation script from your Intune tenant (with optional preview and favorites)
 4. Select target device(s)
 5. Confirm and execute
 6. View real-time progress (multi-device mode)
@@ -189,7 +224,7 @@ $env:IROD_DISABLE_UPDATE_CHECK = 'true'
 ### Mode Selection
 When running without parameters, you'll see:
 ```
-[ I R O D ]
+[ I R O D ]  v1.0.4
 
   [1] Single Device
       Run remediation on one specific device
@@ -197,9 +232,32 @@ When running without parameters, you'll see:
   [2] Multi-Device
       Select multiple devices via GUI
 
+  [3] Import from File
+      Load device names from CSV or TXT file
+
+  [4] Export Results
+      Export remediation results to CSV
+
+  [5] View History
+      View recent remediation history
+
+  [H] Help
+      View documentation and tips
+
   [Q] Quit
 
-Enter choice (1, 2, or Q):
+Enter choice (1-5, H, or Q):
+```
+
+### Import from File
+Option [3] opens a file picker dialog. Supported formats:
+- **CSV** - with a column named `DeviceName`, `Name`, `ComputerName`, or `Device`
+- **TXT** - one device name per line
+
+You can also export a template CSV to fill in:
+```
+  [1] Import from CSV
+  [2] Export template CSV
 ```
 
 ### Multi-Device WPF GUI Features
@@ -207,8 +265,32 @@ Enter choice (1, 2, or Q):
 - Live search/filter functionality
 - Checkbox selection with counter
 - Select All on Page / Deselect All buttons
+- **Select All Devices** requires typing a confirmation phrase to prevent accidents
 - Exit Tool button for clean exit at any stage
 - Real-time progress tracking window during execution
+
+### Script Selection GUI Features
+- Sortable grid of all remediation scripts
+- **Preview** - view the detection and remediation script code
+- **Favorites** - star scripts you use frequently; favorites appear at the top
+- Tooltip showing script description on hover
+
+### History
+Option [5] shows your last 20 remediations. From this view you can export the full history to CSV:
+```
+  [E] Export history to CSV
+  [Enter] Return to menu
+```
+
+History is stored at `C:\Windows\Temp\IROD_history.json` with a 30-day retention window.
+
+## Data Files
+
+| File | Purpose |
+|------|---------|
+| `%APPDATA%\IROD\settings.json` | Theme and other user settings |
+| `%APPDATA%\IROD\favorites.json` | Favorited remediation script IDs |
+| `C:\Windows\Temp\IROD_history.json` | Remediation history (30-day retention) |
 
 ## License
 
