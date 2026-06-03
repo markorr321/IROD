@@ -72,7 +72,7 @@ function Invoke-IntuneRemediation {
 
 .NOTES
     Author: IROD Project
-    Version: 1.0.0
+    Version: 1.1.0
     
     Requirements:
     - PowerShell 5.1 or later

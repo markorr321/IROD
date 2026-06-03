@@ -237,7 +237,7 @@ $env:IROD_DISABLE_UPDATE_CHECK = 'true'
 ### Mode Selection
 When running without parameters, you'll see:
 ```
-[ I R O D ]  v1.0.4
+[ I R O D ]  v1.1.0
 
   [1] Single Device
       Run remediation on one specific device

@@ -12,7 +12,7 @@
 RootModule = 'IROD.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.4'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop', 'Core')
@@ -30,7 +30,7 @@ CompanyName = 'Mark Orr'
 Copyright = '(c) 2026 Mark Orr. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'IROD (Intune Remediation On Demand) - Trigger Intune Proactive Remediation scripts on-demand for single or multiple devices. Features include WPF GUI for device/script selection, script preview, favorites, parallel execution for large batches, CSV/TXT import, history logging, and export capabilities.'
+Description = 'IROD (Intune Remediation On Demand) - Trigger Intune Proactive Remediation scripts on-demand for single or multiple devices. Features include Entra ID group targeting, WPF GUI for device/script selection, script preview, favorites, parallel execution for large batches, CSV/TXT import, history logging, and export capabilities.'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
@@ -110,6 +110,27 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+## v1.1.0
+
+### New Features
+- **Group Targeting**: Target all Windows devices in Entra ID security groups
+  - Supports both assigned and dynamic security groups
+  - Includes devices from nested groups (transitive members)
+  - Displays device count before execution
+  - Automatic matching between Entra ID and Intune devices
+- Added option [3] Group to interactive menu
+- Added Group.Read.All permission requirement
+
+### Improvements
+- All "Azure AD" references updated to "Entra ID"
+- Enhanced help documentation for group targeting
+- Menu options renumbered (Import from File → 4, Export Results → 5, View History → 6)
+
+### New Functions
+- Get-AzureADGroups: Retrieve security-enabled groups
+- Get-DevicesFromGroup: Match group members to Intune devices
+- Get-GroupById: Fetch individual group details
+
 ## v1.0.4
 
 ### Fixes
