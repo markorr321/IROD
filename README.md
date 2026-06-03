@@ -16,6 +16,11 @@ A PowerShell tool to trigger Intune Proactive Remediation scripts on demand. Sup
   - Select all/deselect all options
   - Real-time progress tracking window
   - Parallel execution for large batches (50+ devices)
+- **Group Targeting** - Target all Windows devices in an Entra ID security group:
+  - Supports both assigned and dynamic security groups
+  - Includes devices from nested groups (transitive members)
+  - Displays device count before execution
+  - Matches Entra ID devices to Intune managed devices automatically
 - **Import from File** - Load device names from CSV or TXT files for bulk operations
 - **Export Results** - Export remediation results (detection state, script output, errors) to CSV
 - **View History** - Track past remediations with 30-day retention and CSV export
@@ -46,6 +51,7 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 | `DeviceManagementConfiguration.Read.All` | Read remediation scripts |
 | `DeviceManagementManagedDevices.Read.All` | List and search devices |
 | `DeviceManagementManagedDevices.PrivilegedOperations.All` | Trigger remediation and sync |
+| `Group.Read.All` | Read Entra ID groups for group targeting |
 
 ## Installation
 
@@ -88,6 +94,13 @@ Invoke-IntuneRemediation -DeviceName "DESKTOP-ABC123"
 **Multi-Device Mode:**
 ```powershell
 Invoke-IntuneRemediation -MultiDevice
+```
+
+**Group Targeting Mode:**
+```powershell
+# Interactive menu will include option [3] Group
+# Select a security group to target all its Windows devices
+Invoke-IntuneRemediation
 ```
 
 **Export Results to CSV:**
@@ -232,13 +245,16 @@ When running without parameters, you'll see:
   [2] Multi-Device
       Select multiple devices via GUI
 
-  [3] Import from File
+  [3] Group
+      Target devices in an Entra ID security group
+
+  [4] Import from File
       Load device names from CSV or TXT file
 
-  [4] Export Results
+  [5] Export Results
       Export remediation results to CSV
 
-  [5] View History
+  [6] View History
       View recent remediation history
 
   [H] Help
@@ -246,11 +262,22 @@ When running without parameters, you'll see:
 
   [Q] Quit
 
-Enter choice (1-5, H, or Q):
+Enter choice (1-6, H, or Q):
 ```
 
+### Group Targeting
+Option [3] displays a GUI to select an Entra ID security group:
+- Shows all security-enabled groups in your tenant
+- Supports both **Assigned** and **Dynamic** groups
+- Displays group type and description
+- Shows total device count before execution
+- Automatically resolves devices from nested groups (transitive membership)
+- Only includes Windows devices managed by Intune
+
+The tool matches Entra ID group members against Intune managed devices using the Entra ID Device ID.
+
 ### Import from File
-Option [3] opens a file picker dialog. Supported formats:
+Option [4] opens a file picker dialog. Supported formats:
 - **CSV** - with a column named `DeviceName`, `Name`, `ComputerName`, or `Device`
 - **TXT** - one device name per line
 
@@ -276,7 +303,7 @@ You can also export a template CSV to fill in:
 - Tooltip showing script description on hover
 
 ### History
-Option [5] shows your last 20 remediations. From this view you can export the full history to CSV:
+Option [6] shows your last 20 remediations. From this view you can export the full history to CSV:
 ```
   [E] Export history to CSV
   [Enter] Return to menu

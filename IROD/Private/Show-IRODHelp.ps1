@@ -178,7 +178,7 @@ function Show-IRODHelp {
 
     Environment Variables:
       IROD_CLIENTID - Your app registration Client ID
-      IROD_TENANTID - Your Azure AD Tenant ID
+      IROD_TENANTID - Your Entra ID Tenant ID
 
     Or use the Configure-IROD cmdlet:
       Configure-IROD -ClientId "xxx" -TenantId "yyy"

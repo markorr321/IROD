@@ -1,6 +1,7 @@
 function Get-AllManagedDevices {
     # Only get Windows devices since remediation scripts only apply to Windows
-    $uri = "$script:GraphBaseUrl/deviceManagement/managedDevices?`$select=id,deviceName,userPrincipalName,operatingSystem,complianceState,lastSyncDateTime&`$filter=operatingSystem eq 'Windows'"
+    # Include azureADDeviceId for group-based device matching
+    $uri = "$script:GraphBaseUrl/deviceManagement/managedDevices?`$select=id,deviceName,userPrincipalName,operatingSystem,complianceState,lastSyncDateTime,azureADDeviceId&`$filter=operatingSystem eq 'Windows'"
 
     $response = Invoke-Graph -Uri $uri
     $devices = @($response.value)
